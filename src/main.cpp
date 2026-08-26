@@ -1,29 +1,17 @@
+#include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-
-MacropadState state;
-// --------------------
-// OLED SETTINGS
-// --------------------
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-
-
-
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-
-// --------------------
-// ENCODER PINS
-// --------------------
 #include "config.h"
 #include "state.h"
+MacropadState state;
 
-// --------------------
-// VARIABLES
-// --------------------
-state.volume
-state.muted
+
+
+
+Adafruit_SSD1306 display(OLED_WIDTH, OLED_HEIGHT, &Wire, -1);
+
+
 
 int lastCLKState;
 
@@ -43,10 +31,10 @@ void drawVolumeScreen() {
   display.setTextSize(2);
   display.setCursor(0,16);
 
-  if (muted) {
+  if (state.muted) {
     display.print("MUTED");
   } else {
-    display.print(volume);
+    display.print(state.volume);
     display.print("%");
   }
 
@@ -54,9 +42,9 @@ void drawVolumeScreen() {
   display.drawRect(10, 50, 108, 10, SSD1306_WHITE);
 
   // Filled section
-  int barWidth = map(volume, 0, 100, 0, 106);
+  int barWidth = map(state.volume, 0, 100, 0, 106);
 
-  if (!muted) {
+  if (!state.muted) {
     display.fillRect(11, 51, barWidth, 8, SSD1306_WHITE);
   }
 
@@ -93,11 +81,11 @@ void loop() {
     if (digitalRead(DT_PIN) != currentCLK) {
 
       if (state.volume < 100)
-        volume++;
+        state.volume++;
 
     } else {
 
-      if (volume > 0)
+      if (state.volume > 0)
         state.volume--;
 
     }

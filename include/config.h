@@ -14,8 +14,8 @@ const int SW_PIN  = 3;
 const int OLED_SDA = 11;
 const int OLED_SCL = 12;
 
-const int SCREEN_WIDTH = 128;
-const int SCREEN_HEIGHT = 64;
+constexpr int OLED_WIDTH = 128;
+constexpr int OLED_HEIGHT = 64;
 
 // ----------------------
 // Buttons
