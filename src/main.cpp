@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "encoder.h"
 #include "display.h"
 #include "config.h"
 #include "state.h"
@@ -9,10 +10,6 @@ MacropadState state;
 
 
 
-
-
-int lastCLKState;
-
 // Used so we only redraw when needed
 bool screenNeedsUpdate = true;
 
@@ -22,11 +19,7 @@ void setup() {
 
   Serial.begin(115200);
 
-  pinMode(CLK_PIN, INPUT_PULLUP);
-  pinMode(DT_PIN, INPUT_PULLUP);
-  pinMode(SW_PIN, INPUT_PULLUP);
-
-  lastCLKState = digitalRead(CLK_PIN);
+  encoderInit();
 
   displayInit();
   
@@ -36,49 +29,40 @@ void setup() {
 
 void loop() {
 
-  int currentCLK = digitalRead(CLK_PIN);
+    encoderUpdate();
 
-  // Encoder rotated
-  if (currentCLK != lastCLKState && currentCLK == LOW) {
+    if (encoderMovedClockwise()) {
 
-    if (digitalRead(DT_PIN) != currentCLK) {
-
-      if (state.volume < 100)
-        state.volume++;
-
-    } else {
-
-      if (state.volume > 0)
-        state.volume--;
+        if (state.volume < 100) {
+            state.volume++;
+            screenNeedsUpdate = true;
+        }
 
     }
 
-    screenNeedsUpdate = true;
-  }
+    if (encoderMovedCounterClockwise()) {
 
-  lastCLKState = currentCLK;
+        if (state.volume > 0) {
+            state.volume--;
+            screenNeedsUpdate = true;
+        }
 
-  // Encoder button
-  static bool lastButtonState = HIGH;
+    }
 
-  bool currentButtonState = digitalRead(SW_PIN);
+    if (encoderButtonPressed()) {
 
-  if (lastButtonState == HIGH && currentButtonState == LOW) {
+        state.muted = !state.muted;
+        screenNeedsUpdate = true;
 
-    state.muted = !state.muted;
-    screenNeedsUpdate = true;
+    }
 
-  }
+    if (screenNeedsUpdate) {
 
-  lastButtonState = currentButtonState;
+        drawVolumeScreen();
+        screenNeedsUpdate = false;
 
-  if (screenNeedsUpdate) {
+    }
 
-    drawVolumeScreen();
-    screenNeedsUpdate = false;
-
-  }
-
-  delay(2);
+    delay(2);
 
 }
