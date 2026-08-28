@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "buttons.h"
 #include "encoder.h"
 #include "display.h"
 #include "config.h"
@@ -20,7 +21,7 @@ void setup() {
   Serial.begin(115200);
 
   encoderInit();
-
+  buttonsInit();
   displayInit();
   
 
@@ -30,6 +31,7 @@ void setup() {
 void loop() {
 
     encoderUpdate();
+    buttonsUpdate();
 
     if (encoderMovedClockwise()) {
 
@@ -56,6 +58,18 @@ void loop() {
 
     }
 
+    for (int i = 0; i < NUM_BUTTONS; i++) {
+
+    if (buttonPressed(i)) {
+
+        Serial.print("Button ");
+        Serial.print(i + 1);
+        Serial.println(" pressed");
+
+    }
+
+
+
     if (screenNeedsUpdate) {
 
         drawVolumeScreen();
@@ -65,4 +79,5 @@ void loop() {
 
     delay(2);
 
+}
 }
